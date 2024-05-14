@@ -11,8 +11,15 @@ function Start-EntryPoint {
         & $pythonCommand -m http.server 8080 -d frontend
     } -ArgumentList $pythonCommand
 
-    # Install Flask and start the backend server
-    & $pythonCommand -m pip install flask
+    # Install pip packages from requirements.txt
+    if (Test-Path -Path "requirements.txt") {
+        Write-Output "Installing pip packages from requirements.txt"
+        & $pythonCommand -m pip install -r requirements.txt
+    } else {
+        Write-Output "requirements.txt not found. Skipping pip package installation."
+    }
+
+    # Start the backend server
     $backendJob = Start-Job -ScriptBlock {
         param ($pythonCommand)
         & $pythonCommand backend/api.py

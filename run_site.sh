@@ -16,7 +16,7 @@ then
     echo "Starting EntryPoint site server on port 8080: http://localhost:8080/posts.html"
     python -m http.server 8080 -d frontend &
     frontend_pid=$!
-    pip install flask
+    pip install -r requirements.txt
     python backend/api.py &
     backend_pid=$!
 
@@ -26,7 +26,7 @@ then
     echo "Starting EntryPoint site server on port 8080: http://localhost:8080/posts.html"
     python3 -m http.server 8080 -d frontend &
     frontend_pid=$!
-    pip3 install flask
+    pip install -r requirements.txt
     python3 backend/api.py &
     backend_pid=$!
 
