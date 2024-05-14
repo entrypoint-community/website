@@ -1,0 +1,31 @@
+.square-card {
+    width: 150px; /* Width of the square */
+    height: 150px; /* Height of the square */
+    margin: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    border: 1px solid #dee2e6; /* Bootstrap's default border color for consistency */
+}
+
+.card-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+.card-body i { /* Larger icons */
+    font-size: 36px; /* Larger size for icons */
+    margin-bottom: 8px;
+}
+
+.card-body span { /* Smaller text */
+    font-size: 16px; /* Smaller font size for text */
+}
+
+.selected {
+    border: 3px solid #007bff; /* Bootstrap primary color */
+}

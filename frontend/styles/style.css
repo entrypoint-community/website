@@ -1,0 +1,61 @@
+@import url(animations.css);
+
+/* Adjust the main content container */
+#home {
+    margin-left: 20rem; /* Adjust based on your actual side panel width */
+    padding: 2rem;
+}
+
+/* Styling for individual blog posts */
+.blog-post {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+    padding: 20px;
+    width: calc(100% - 4rem); /* Adjust padding */
+    min-width: 500px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: slideInFromRight 1s forwards; /* Animation to slide in */
+}
+
+.blog-post .p-4 {
+    padding: 1rem; /* Padding inside the card */
+}
+
+.text-gray-700, .text-gray-600 {
+    color: #4a5568; /* Tailwind's gray-700 and gray-600 for text */
+}
+
+.bg-blue-500, .hover:bg-blue-600 {
+    background-color: #4299e1; /* Tailwind's blue-500 */
+}
+
+.text-white {
+    color: white;
+}
+
+.rounded {
+    border-radius: 0.25rem; /* Rounded corners */
+}
+
+.shadow-lg, .hover:shadow-xl {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Shadows for depth */
+}
+
+.hover:shadow-xl {
+    transition: box-shadow 0.3s; /* Smooth transition for hover effect */
+}
+
+.transition-shadow, .transition-colors {
+    transition: all 0.3s ease; /* Smooth transition for all properties */
+}
+
+.hover:bg-blue-600 {
+    background-color: #3182ce; /* Darker blue on hover */
+}
+
+.blog-post:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}

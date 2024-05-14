@@ -1,0 +1,75 @@
+<!-- Modal -->
+<div class="modal fade" id="registrationModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalLabel">Community Registration Form</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-5">
+                <form id="registrationForm">
+                    <div class="mb-3">
+                        <label for="fullName" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="fullName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="age" class="form-label">Age</label>
+                        <input type="number" class="form-control" id="age" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="linkedin" class="form-label">Linkedin URL</label>
+                        <input type="text" class="form-control" id="linkedin" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="experience" class="form-label">Years of Experience</label>
+                        <input type="number" class="form-control" id="experience" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="profession" class="form-label">Desired Profession</label>
+                        <select class="form-control" id="profession">
+                            <option>DevOps</option>
+                            <option>FinOps</option>
+                            <option>SRE</option>
+                            <option>SecOps</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="about" class="form-label">A Little About Yourself</label>
+                        <textarea class="form-control" id="about" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="education" class="form-label">Education</label>
+                        <select class="form-control" id="education">
+                            <option>Course</option>
+                            <option>Self Taught</option>
+                            <option>Academic</option>
+                            <option>Online Courses</option>
+                            <option>Professional Training</option>
+                            <option>Certifications</option>
+                            <option>Bootcamp</option>
+                            <option>No Formal Education</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="goals" class="form-label">Looking to</label>
+                        <select class="form-control" id="goals">
+                            <option>Extend my knowledge</option>
+                            <option>Meet people in the same track as I am</option>
+                            <option>Find a job</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" form="registrationForm">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add this right before the closing </body> tag -->
+<button data-bs-toggle="modal" data-bs-target="#registrationModal" class="floating-button" aria-label="Join the community!">
+    Join Us!
+</button>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>EntryPoint Community</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdn.tailwindcss.com" rel="stylesheet">
+        
+        <!-- Including Font Awesome for Icons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+        <link rel="stylesheet" href="/styles/style.css">
+        <link rel="stylesheet" href="/styles/registration.css">
+        <link rel="stylesheet" href="styles/github.css">
+    </head>
+<body class="bg-gray-100">
+
+    <!-- GitHub Button -->
+    <div id="github"></div>
+
+    <!-- Navigation Side Panel -->
+    <div id="sidebar-container"></div>
+
+    <!-- Main Content -->
+    <div class="flex flex-wrap md:pl-20"> <!-- Adjust for sidebar presence -->
+        <section id="dashboard" class="w-full pt-12 px-10 ml-40">
+            <h1 class="text-3xl mb-3">Community Statistics</h1>
+            <div class="row">
+                <!-- Number of Community Members -->
+                <div class="col-md-4 mb-4">
+                    <div class="card border-left-primary shadow py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Community Members</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">1,250</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-users fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Amount of Home Tasks -->
+                <div class="col-md-4 mb-4">
+                    <div class="card border-left-success shadow py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Home Tasks</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">35</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-home fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Amount of Community Files -->
+                <div class="col-md-4 mb-4">
+                    <div class="card border-left-info shadow py-2">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Community Files</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">780</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-folder-open fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <canvas id="communitySizeChart"></canvas>
+        </section>
+    </div>
+
+    <div class="pl-48">
+        <!-- Dashboard -->
+        <section id="dashboard" class="w-full pt-12 px-4">
+            <canvas id="communitySizeChart"></canvas>
+            <!-- More charts can be added here -->
+        </section>
+    </div>
+
+    <!-- WhatsApp Button -->
+    <div id="registration-button"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="js/scripts.js"></script>
+    <script src="js/loadComponents.js"></script>
+</body>
+</html>

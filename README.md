@@ -1,1 +1,1 @@
-# website
+# The official EntryPoint community website

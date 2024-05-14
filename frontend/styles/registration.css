@@ -1,0 +1,21 @@
+@import url(animations.css);
+
+.floating-button {
+    position: fixed; /* Fixed position to keep it visible */
+    bottom: 30px; /* Distance from the bottom */
+    right: 20px; /* Initial distance from the right */
+    padding: 10px 20px; /* Padding inside the button */
+    background-color: #007BFF; /* Background color */
+    color: white; /* Text color */
+    text-decoration: none; /* Remove underline from link */
+    font-size: 16px; /* Font size */
+    border-radius: 50px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Shadow for 3D effect */
+    transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    animation: slideInFromRight 1s ease-out; /* Animation to slide in */
+}
+
+.floating-button:hover {
+    background-color: #0056b3; /* Darker shade on hover */
+    color: white;
+}

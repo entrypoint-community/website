@@ -1,0 +1,26 @@
+@import url(animations.css);
+
+.floating-github-button {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 50px; /* Adjusted for icon only */
+    height: 50px; /* Square dimension */
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 50%; /* Circular button */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+    animation: slideInFromRight 1s ease-out;
+}
+
+/* Hover Effect */
+.floating-github-button:hover {
+    color: white; /* Keeps the icon white on hover */
+    transform: scale(1.1); /* Slightly larger */
+    text-decoration: none;
+}
