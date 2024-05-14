@@ -13,21 +13,21 @@ def get_date():
 
 # Sample data for the API
 members_data = [
-    {"photo": "/backend/pics/entrypoint.jpeg", "name": "Alice Johnson", "position": "DevOps Engineer", "company": "Elementor", "seniority": "2"},
-    {"photo": "/backend/pics/entrypoint.jpeg", "name": "Bob Smith", "position": "SRE Team Member", "company": "Elementor", "seniority": "2"},
-    {"photo": "/backend/pics/entrypoint.jpeg", "name": "Carol Williams", "position": "FinOps Engineer", "company": "Elementor", "seniority": "1"},
-    {"photo": "/backend/pics/entrypoint.jpeg", "name": "Alice Johnson", "position": "DevOps Engineer", "company": "Elementor", "seniority": "4"},
-    {"photo": "/backend/pics/entrypoint.jpeg", "name": "Bob Smith", "position": "Developer", "company": "Elementor", "seniority": "3"},
-    {"photo": "/backend/pics/entrypoint.jpeg", "name": "Carol Williams", "position": "Designer", "company": "Elementor", "seniority": "2"}
+    {"photo": "/public/imgs/entrypoint.jpeg", "name": "Alice Johnson", "position": "DevOps Engineer", "company": "Elementor", "seniority": "2"},
+    {"photo": "/public/imgs/entrypoint.jpeg", "name": "Bob Smith", "position": "SRE Team Member", "company": "Elementor", "seniority": "2"},
+    {"photo": "/public/imgs/entrypoint.jpeg", "name": "Carol Williams", "position": "FinOps Engineer", "company": "Elementor", "seniority": "1"},
+    {"photo": "/public/imgs/entrypoint.jpeg", "name": "Alice Johnson", "position": "DevOps Engineer", "company": "Elementor", "seniority": "4"},
+    {"photo": "/public/imgs/entrypoint.jpeg", "name": "Bob Smith", "position": "Developer", "company": "Elementor", "seniority": "3"},
+    {"photo": "/public/imgs/entrypoint.jpeg", "name": "Carol Williams", "position": "Designer", "company": "Elementor", "seniority": "2"}
 ]
 
 posts_data = [
-    {"title": "Introduction to Flask", "summary": "This post introduces Flask, a lightweight WSGI web application framework.", "author": "Yuval Press", "date": get_date(), "image": "/backend/pics/entrypoint.jpeg", "url": ""},
-    {"title": "API Development", "summary": "Learn how to build APIs with Flask for better data handling.", "author": "Yuval Press", "date": get_date(), "image": "/backend/pics/entrypoint.jpeg"},
-    {"title": "Advanced Flask", "summary": "Explore advanced features of Flask including blueprints and application factories.", "author": "Yuval Press", "date": get_date(), "image": "/backend/pics/entrypoint.jpeg"},
-        {"title": "Introduction to Flask", "summary": "This post introduces Flask, a lightweight WSGI web application framework.", "author": "Yuval Press", "date": get_date(), "image": "/backend/pics/entrypoint.jpeg"},
-    {"title": "API Development", "summary": "Learn how to build APIs with Flask for better data handling.", "author": "Yuval Press", "date": get_date(), "image": "/backend/pics/entrypoint.jpeg"},
-    {"title": "Advanced Flask", "summary": "Explore advanced features of Flask including blueprints and application factories.", "author": "Yuval Press", "date": get_date(), "image": "/backend/pics/entrypoint.jpeg"}
+    {"title": "Introduction to Flask", "summary": "This post introduces Flask, a lightweight WSGI web application framework.", "author": "Yuval Press", "date": get_date(), "image": "/public/imgs/entrypoint.jpeg", "url": ""},
+    {"title": "API Development", "summary": "Learn how to build APIs with Flask for better data handling.", "author": "Yuval Press", "date": get_date(), "image": "/public/imgs/entrypoint.jpeg"},
+    {"title": "Advanced Flask", "summary": "Explore advanced features of Flask including blueprints and application factories.", "author": "Yuval Press", "date": get_date(), "image": "/public/imgs/entrypoint.jpeg"},
+        {"title": "Introduction to Flask", "summary": "This post introduces Flask, a lightweight WSGI web application framework.", "author": "Yuval Press", "date": get_date(), "image": "/public/imgs/entrypoint.jpeg"},
+    {"title": "API Development", "summary": "Learn how to build APIs with Flask for better data handling.", "author": "Yuval Press", "date": get_date(), "image": "/public/imgs/entrypoint.jpeg"},
+    {"title": "Advanced Flask", "summary": "Explore advanced features of Flask including blueprints and application factories.", "author": "Yuval Press", "date": get_date(), "image": "/public/imgs/entrypoint.jpeg"}
 ]
 
 # Endpoint to get members
