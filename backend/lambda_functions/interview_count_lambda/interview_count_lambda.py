@@ -55,22 +55,31 @@ def send_metric_to_website(company_name, interview_date, interview_count):
     return response
 
 def lambda_handler(event, context):
+    # Validate input
     is_valid, result = validate_input(event)
     if not is_valid:
         return {
             'statusCode': 400,
+            'headers': {
+                'Access-Control-Allow-Origin': '*'
+            },
             'body': json.dumps(result)
         }
     
     company_name, interview_date = result
 
+    # Retrieve metric statistics
     data_points = get_metric_statistics(company_name, interview_date)
     if not data_points:
         return {
             'statusCode': 200,
+            'headers': {
+                'Access-Control-Allow-Origin': '*'
+            },
             'body': json.dumps('No data points found for the specified time range.')
         }
     
+    # Send metric data to the website
     for data_point in data_points:
         interview_count = data_point['Sum']
         if not company_name:
@@ -83,10 +92,18 @@ def lambda_handler(event, context):
         if response.status_code != 200:
             return {
                 'statusCode': response.status_code,
+                'headers': {
+                'Access-Control-Allow-Origin': '*',  
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT'
+                },
                 'body': json.dumps('Failed to send metric data to the website.')
             }
     
     return {
         'statusCode': 200,
+        'headers': {
+            'Access-Control-Allow-Origin': '*'
+        },
         'body': json.dumps('Metric data successfully sent to the website.')
     }
