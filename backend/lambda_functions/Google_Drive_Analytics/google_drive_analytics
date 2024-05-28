@@ -1,0 +1,108 @@
+import os
+import json 
+import boto3 
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+
+#secret parameters for the credentials 
+SECRET_NAME = os.environ['SECRET_NAME']  
+REGION_NAME = os.environ['REGION_NAME']
+
+SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly']
+
+def get_secret(): 
+    client = boto3.client('secretsmanager', region_name=REGION_NAME)
+    try:
+        get_secret_value_response = client.get_secret_value(SecretId=SECRET_NAME)
+        secret = get_secret_value_response['SecretString']
+        return json.loads(secret)
+    except Exception as e:
+        print(f"Error retrieving secret: {e}")
+        raise e
+
+def get_drive_service(credentials_info):
+    credentials = service_account.Credentials.from_service_account_file(credentials_info, scopes=SCOPES)
+    service = build('drive', 'v3', credentials=credentials)
+    return service
+
+def get_folder_name(service, folder_id):
+    try:
+        folder = service.files().get(fileId=folder_id, fields='name').execute()
+        return folder.get('name', 'Unknown Folder')
+    except Exception as e:
+        print(f"Error: {e}")
+        return 'Unknown Folder'
+
+def count_files_in_folder(service, folder_id):
+    try:
+        total_files = 0
+        folder_name = get_folder_name(service, folder_id)
+
+        def list_files(folder_id):
+            nonlocal total_files
+            query = f"'{folder_id}' in parents"
+            results = service.files().list(
+                q=query,
+                pageSize=1000,
+                fields="nextPageToken, files(id, name, mimeType)"
+            ).execute()
+
+            items = results.get('files', [])
+            for item in items:
+                if item['mimeType'] == 'application/vnd.google-apps.folder':
+                    list_files(item['id'])
+                else:
+                    total_files += 1
+
+            page_token = results.get('nextPageToken')
+            if page_token:
+                list_files(folder_id)
+
+        list_files(folder_id)
+
+        print(f'Total files in folder "{folder_name}": {total_files}')
+        return total_files
+
+    except Exception as e:
+        print(f"Error: {e}")
+
+def lambda_handler(event, context): 
+    headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type"
+    }
+
+    try: 
+        secret = get_secret()
+        service = get_drive_service(secret)
+
+        entrypoint_drive_folder_id = os.environ['ENTRYPOINT_DRIVE_FOLDER_ID']
+        home_tasks_folder_id = os.environ['HOME_TASKS_FOLDER_ID']
+
+        drive_count = count_files_in_folder(service, entrypoint_drive_folder_id)
+        home_tasks_count = count_files_in_folder(service, home_tasks_folder_id)
+
+        response = {
+            "statusCode": 200,
+            "headers": headers,
+            "body": json.dumps({
+                "entrypoint_drive_folder_files": drive_count,
+                "home_tasks_folder_files": home_tasks_count
+            })
+        }
+        
+        return response
+        
+    except Exception as e:
+        print(f"Error in lambda handler: {e}")
+        response = {
+            "statusCode": 500,
+            "headers": headers,
+            "body": json.dumps({"error": str(e)})
+        }
+        return response
+
+
+#if __name__ == '__main__':
+#    lambda_handler({},{})
