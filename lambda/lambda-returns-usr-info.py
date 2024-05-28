@@ -1,80 +1,122 @@
 import json
+import os
 import boto3
 from botocore.exceptions import ClientError
 import psycopg2
 from psycopg2 import OperationalError
+from credentials import db_creds
 
+# get the credentials for Secret Manager
+def getCredentials() -> db_creds:
 
-def getCredentials():
-    credential = {}
-    
-    secret_name = "mysecretname"
-    region_name = "us-east-1"
-    
     client = boto3.client(
       service_name='secretsmanager',
-      region_name=region_name
+      region_name=os.environ['AWS_REGION']
     )
     
     try:
-        get_secret_value_response = client.get_secret_value(
-            SecretId=secret_name
+        secret_value = client.get_secret_value(
+            SecretId='secretName' # replace with the real secret name 
         )
+        secret = json.loads(secret_value['SecretString'])
     except ClientError as e:
-        if e.response['Error']['Code'] == 'ResourceNotFoundException':
-            print("The requested failed due to permmisions issue")
-        elif e.response['Error']['Code'] == 'InvalidRequestException':
-            print("The request was invalid due to:", e)
-        elif e.response['Error']['Code'] == 'InvalidParameterException':
-            print("The request had invalid params:", e)
-        elif e.response['Error']['Code'] == 'DecryptionFailure':
-            print("The requested secret can't be decrypted using the provided KMS key:", e)
-        elif e.response['Error']['Code'] == 'InternalServiceError':
-            print("An error occurred on service side:", e)
-
-    else:
-      secret = json.loads(get_secret_value_response['SecretString'])
-      
-      credential['username'] = secret['username']
-      credential['password'] = secret['password']
-      credential['host'] = "host"
-      credential['db'] = "databasename"
+        print(f"The error '{e}' occurred")
+        raise e
     
-    return credential
+    return db_creds(
+        username = secret['username'],
+        password = secret['password'],
+        host = secret['host'],
+        database = secret['database']
+    )
+
 
 def lambda_handler(event, context):
-  credential = getCredentials()
   
-  connection = psycopg2.connect(
-      user=credential['username'], 
-      password=credential['password'], 
-      host=credential['host'], 
-      database=credential['db']
-  )
-  try:  
+    try:
+        credential = getCredentials()
+    except json.JSONDecodeError as e:
+            return {
+                'statusCode': 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'application/json'
+                },
+                'body': json.dumps({"error": "Invalid JSON syntax", "message": str(e)})
+            }
+    
+    # try to connect to the DB
+    try:
+        connection = psycopg2.connect(
+            user=credential.username,
+            password=credential.password,
+            host=credential.host,
+            database=credential.database,
+            connect_timeout=10
+        )
+    except OperationalError as e:
+        print(f"The error '{e}' occurred")
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            },
+            'body': json.dumps({"error": "Database connection failed", "message": str(e)})
+        }
+
+    try:  
         cursor = connection.cursor()
         
         check_table = "SELECT 1 FROM pg_tables WHERE tablename = 'users'"
         cursor.execute(check_table)
         table_exists = cursor.fetchone()
-        
+
         if not table_exists:
             print("There is no table called 'users'")
-            return {'statusCode': 400, 'message': "There is no table called 'users'"}
+            return {
+                'statusCode': 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'application/json'
+                },
+                'body': json.dumps({"message": "There is no table called 'users'"})
+            }
         
         query = "SELECT * FROM users"
         cursor.execute(query)
         
-        results = cursor.fetchall()
+        user_data = cursor.fetchall()
         
         cursor.close()
         connection.close()
         
-        return {'statusCode': 200, 'body': results}
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            },
+            'body': json.dumps(user_data)
+        }
 
-  except OperationalError as e:
-      print(f"The error '{e}' occurred")
-      return {'statusCode': 500, 'error': str(e)}
-  except Exception as error:
-      print(f"Error occurred: {error}")
-      return {'statusCode': 500, 'error': str(error)}
+    except OperationalError as e:
+        print(f"The error '{e}' occurred")
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            },
+            'body': json.dumps({"error": str(e)})
+        }
+    except Exception as error:
+        print(f"Error occurred: {error}")
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            },
+            'body': json.dumps({"error": str(error)})
+        }
