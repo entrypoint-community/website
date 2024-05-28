@@ -67,23 +67,25 @@ def count_files_in_folder(service, folder_id):
         print(f"Error: {e}")
 
 def lambda_handler(event, context): 
+    headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type"
+    }
+
     try: 
         secret = get_secret()
         service = get_drive_service(secret)
 
-        entrypoint_drive_folder_id = '1ugHtUXt1WhRrddKYdw5udTlCVH7lwMu_'
-        home_tasks_folder_id = '1NF4IZ-GWgZhhE1PWVg8eF7MQ2Vsv8vu9'
+        entrypoint_drive_folder_id = os.environ['ENTRYPOINT_DRIVE_FOLDER_ID']
+        home_tasks_folder_id = os.environ['HOME_TASKS_FOLDER_ID']
 
         drive_count = count_files_in_folder(service, entrypoint_drive_folder_id)
         home_tasks_count = count_files_in_folder(service, home_tasks_folder_id)
 
         response = {
             "statusCode": 200,
-            "headers": {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type"
-            },
+            "headers": headers,
             "body": json.dumps({
                 "entrypoint_drive_folder_files": drive_count,
                 "home_tasks_folder_files": home_tasks_count
@@ -96,15 +98,11 @@ def lambda_handler(event, context):
         print(f"Error in lambda handler: {e}")
         response = {
             "statusCode": 500,
-            "headers": {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type"
-            },
+            "headers": headers,
             "body": json.dumps({"error": str(e)})
         }
         return response
 
 
 #if __name__ == '__main__':
-#    lambda_handler({},{}) 
+#    lambda_handler({},{})
