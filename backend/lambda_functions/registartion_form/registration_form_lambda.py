@@ -12,17 +12,11 @@ DB_PASSWORD = os.environ['DB_PASSWORD']
 DB_PORT = os.environ['DB_PORT']
 WHATSAPP_LINK = "https://chat.whatsapp.com/Bx3hIysSqmG5p3ZYtnNXw7"
 
-# Initialize the SES to send the email
+# Initialize the SES client
 ses = boto3.client('ses', region_name=REGION)
 
-def lambda_handler(event, context):
-    # extract the data from the event
-    user_data = json.loads(event['body'])
-    name = user_data['name']
-    email = user_data['email']
-    phone = user_data['phone']
-
-    # Connect to the database
+# Database connection function
+def connect_to_db():
     try:
         conn = psycopg2.connect(
             host=DB_HOST,
@@ -31,29 +25,31 @@ def lambda_handler(event, context):
             password=DB_PASSWORD,
             port=DB_PORT
         )
-        cursor = conn.cursor()
-
-        # Inserting userdata into db (assumes table is already created and called community_members)
-        cursor.execute("INSERT INTO community_members (name, email, phone) VALUES (%s, %s, %s)", (name, email, phone))
-        conn.commit()
-        cursor.close()
-        conn.close()
-
+        return conn
     except Exception as e:
-        print(e)
-        return {
-            'statusCode': 500,
-            'body': json.dumps('Internal Server Error')
-        }
-    
-    # Send the email to the user
+        print("Error connecting to the database: ", e)
+        raise
+
+# Execute a given query with the given parameters
+def execute_query(query, params):
+    try:
+        conn = connect_to_db()
+        cur = conn.cursor()
+        cur.execute(query, params)
+        conn.commit()
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print("Error executing query: ", e)
+        raise
+
+# Send an email to the user
+def send_email(to_address, name):
     try:
         response = ses.send_email(
-            Source='email@domain.com', # change later to the email you want to send from
+            Source="email@domain.com", # Replace with your email
             Destination={
-                'ToAddresses': [
-                    email,
-                ],
+                'ToAddresses': [to_address]
             },
             Message={
                 'Subject': {
@@ -68,16 +64,49 @@ def lambda_handler(event, context):
                 }
             }
         )
-        print(f"Email sent to {email}") # Log the email sent
-
+        print("Email sent successfully to ", to_address)
     except Exception as e:
-        print(e)
+        print("Error sending email: ", e)
+        raise
+
+# Lambda handler
+def lambda_handler(event, context):
+    try:
+        user_data = json.loads(event['body'])
+        name = user_data['name']
+        email = user_data['email']
+        phone = user_data['phone']
+    except Exception as e:
+        print(f"Error parsing event data: {e}")
+        return {
+            'statusCode': 400,
+            'body': json.dumps('Bad Request')
+        }
+    
+    # Insert via query into the database
+    try:
+        query = "INSERT INTO community_members (name, email, phone) VALUES (%s, %s, %s)"
+        params = (name, email, phone)
+        execute_query(query, params)
+    except Exception as e:
+        print(f"Error inserting data into the database: {e}")
         return {
             'statusCode': 500,
             'body': json.dumps('Internal Server Error')
         }
-
+    
+    # Send email to the user
+    try:
+        send_email(email, name)
+    except Exception as e:
+        print(f"Error sending email: {e}")
+        return {
+            'statusCode': 500,
+            'body': json.dumps('Internal Server Error')
+        }
+    
     return {
         'statusCode': 200,
-        'body': json.dumps('Successfully Registered')
+        'body': json.dumps('Success')
     }
+
