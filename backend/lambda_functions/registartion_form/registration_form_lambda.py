@@ -1,15 +1,10 @@
-# Steps needs to take to run the lambda function
-# 1. Setting up the RDS Postgres Database
-# 2. Setting up IAM Role so that the lambda function can access the RDS Postgres Database
-
 import json
 import psycopg2
 import os
 import boto3
-import os 
 
 # Environment Variables
-REGION=os.environ['REGION']
+REGION = os.environ['REGION']
 DB_HOST = os.environ['DB_HOST']
 DB_NAME = os.environ['DB_NAME']
 DB_USER = os.environ['DB_USER']
@@ -17,7 +12,7 @@ DB_PASSWORD = os.environ['DB_PASSWORD']
 DB_PORT = os.environ['DB_PORT']
 WHATSAPP_LINK = "https://chat.whatsapp.com/Bx3hIysSqmG5p3ZYtnNXw7"
 
-# Initalize the SES to send the email
+# Initialize the SES to send the email
 ses = boto3.client('ses', region_name=REGION)
 
 def lambda_handler(event, context):
@@ -38,7 +33,7 @@ def lambda_handler(event, context):
         )
         cursor = conn.cursor()
 
-    # Inserting userdata into db (assumes table is already created and called community_members)
+        # Inserting userdata into db (assumes table is already created and called community_members)
         cursor.execute("INSERT INTO community_members (name, email, phone) VALUES (%s, %s, %s)", (name, email, phone))
         conn.commit()
         cursor.close()
@@ -54,7 +49,7 @@ def lambda_handler(event, context):
     # Send the email to the user
     try:
         response = ses.send_email(
-            Source='email@domain.com',
+            Source='email@domain.com', # change later to the email you want to send from
             Destination={
                 'ToAddresses': [
                     email,
@@ -67,20 +62,22 @@ def lambda_handler(event, context):
                 },
                 'Body': {
                     'Text': {
-                        'Data': f'Hello {name},\n\nThank you for joining the community. You can join our whatsapp group using the following link: {WHATSAPP_LINK}\n\nBest,\nCommunity Team',
+                        'Data': f'Hello {name},\n\nThank you for joining the community. You can join our WhatsApp group using the following link: {WHATSAPP_LINK}\n\nBest,\nCommunity Team',
                         'Charset': 'UTF-8'
                     }
                 }
             }
-            print(f"Email sent to {email}") # Log the email sent
-            except Exception as e:
-                print(e)
-                return {
-                    'statusCode': 500,
-                    'body': json.dumps('Internal Server Error')
-                }
+        )
+        print(f"Email sent to {email}") # Log the email sent
+
+    except Exception as e:
+        print(e)
+        return {
+            'statusCode': 500,
+            'body': json.dumps('Internal Server Error')
+        }
+
     return {
         'statusCode': 200,
         'body': json.dumps('Successfully Registered')
     }
-    
