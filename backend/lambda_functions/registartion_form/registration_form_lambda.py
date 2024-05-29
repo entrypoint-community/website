@@ -15,10 +15,10 @@ DB_NAME = os.environ['DB_NAME']
 DB_USER = os.environ['DB_USER']
 DB_PASSWORD = os.environ['DB_PASSWORD']
 DB_PORT = os.environ['DB_PORT']
-WHATSAPP_LINK = os.environ['WHATSAPP_LINK']
+WHATSAPP_LINK = "https://chat.whatsapp.com/Bx3hIysSqmG5p3ZYtnNXw7"
 
 # Initalize the SES to send the email
-# ses = boto3.client('ses', region_name=REGION)
+ses = boto3.client('ses', region_name=REGION)
 
 def lambda_handler(event, context):
     # extract the data from the event
@@ -51,5 +51,36 @@ def lambda_handler(event, context):
             'body': json.dumps('Internal Server Error')
         }
     
-    # TODO: implement the email sending logic
-
+    # Send the email to the user
+    try:
+        response = ses.send_email(
+            Source='email@domain.com',
+            Destination={
+                'ToAddresses': [
+                    email,
+                ],
+            },
+            Message={
+                'Subject': {
+                    'Data': 'Welcome to the Entrypoint - Community',
+                    'Charset': 'UTF-8'
+                },
+                'Body': {
+                    'Text': {
+                        'Data': f'Hello {name},\n\nThank you for joining the community. You can join our whatsapp group using the following link: {WHATSAPP_LINK}\n\nBest,\nCommunity Team',
+                        'Charset': 'UTF-8'
+                    }
+                }
+            }
+            print(f"Email sent to {email}") # Log the email sent
+            except Exception as e:
+                print(e)
+                return {
+                    'statusCode': 500,
+                    'body': json.dumps('Internal Server Error')
+                }
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Successfully Registered')
+    }
+    
