@@ -85,7 +85,7 @@ def lambda_handler(event, context):
     
     # Insert via query into the database
     try:
-        query = "INSERT INTO community_members (name, email, phone) VALUES (%s, %s, %s)"
+        query = "INSERT INTO users (name, email, phone) VALUES (%s, %s, %s)"
         params = (name, email, phone)
         execute_query(query, params)
     except Exception as e:
