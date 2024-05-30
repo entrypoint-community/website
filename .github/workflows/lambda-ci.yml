@@ -1,0 +1,25 @@
+name: Lambda CI - ZIP 
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/lambda_functions/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build zip files for each lambda function
+        run: |
+          cd backend/lambda_functions
+          for d in */ ; do
+            zip -r "${d%/}.zip" "$d"
+          done
+
+# TODO: Upload to S3 bucket
