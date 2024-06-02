@@ -1,17 +1,17 @@
 import json
 import boto3
+import os
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 import io
 
 def get_secret():
-    secret_name = "google_drive_service_account"  # Replace with the name of your secret
-    region_name = "us-east-1"   # Replace with your AWS region
+    secret_name = os.environ['SECRET_NAME']
+    region_name = os.environ['REGION_NAME']
 
     # Create a Secrets Manager client
-    session = boto3.session.Session()
-    client = session.client(service_name='secretsmanager', region_name=region_name)
+    client = boto3.client(service_name='secretsmanager', region_name=region_name)
     
     # Retrieve the secret value
     get_secret_value_response = client.get_secret_value(SecretId=secret_name)
@@ -24,10 +24,13 @@ def lambda_handler(event, context):
     # Get service account credentials from AWS Secrets Manager
     credentials_info = get_secret()
     
-    # Load the service account credentials JSON data
+    # Define the scopes
+    scopes = ['https://www.googleapis.com/auth/drive.readonly']
+    
+    # Initialize credentials
     credentials = service_account.Credentials.from_service_account_info(
         credentials_info,
-        scopes=['https://www.googleapis.com/auth/drive.readonly']
+        scopes=scopes
     )
     
     # Set up Google Drive API client
@@ -60,7 +63,10 @@ def lambda_handler(event, context):
     
     return {
         'statusCode': 200,
+        'headers': {
+        'Access-Control-Allow-Origin': '*',  
+        'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+        'Access-Control-Allow-Methods': 'GET,OPTIONS,POST,PUT'
+        },        
         'body': json.dumps(payload)
     }
-
-
