@@ -6,7 +6,7 @@ import psycopg2
 from psycopg2 import OperationalError, sql
 from credentials import db_creds
 
-def getCredentials(secret_Name) -> db_creds:
+def get_postgres_credentials(secret_Name) -> db_creds:
 
     client = boto3.client(
       service_name='secretsmanager',
@@ -29,9 +29,10 @@ def getCredentials(secret_Name) -> db_creds:
         database = secret['database']
     )
 
-def lambda_handler(event, context, table):
+
+def check_table(table):
     try:
-        credential = getCredentials(secret_Name='secretName') # replace the secret with the actual secret for the DB creds
+        credential = get_postgres_credentials(secret_Name='secretName') # replace the secret with the actual secret for the DB creds
     except json.JSONDecodeError as e:
             return {
                 'statusCode': 400,
@@ -79,6 +80,52 @@ def lambda_handler(event, context, table):
                 },
                 'body': json.dumps({"message": f"There is no table called {table}"})
             }
+    except OperationalError as e:
+        print(f"The error '{e}' occurred")
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            },
+            'body': json.dumps({"error": str(e)})
+        }
+
+def lambda_handler(event, context, table):
+    try:
+        credential = get_postgres_credentials(secret_Name='secretName') # replace the secret with the actual secret for the DB creds
+    except json.JSONDecodeError as e:
+            return {
+                'statusCode': 400,
+                'headers': {
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type': 'application/json'
+                },
+                'body': json.dumps({"error": "Invalid JSON syntax", "message": str(e)})
+            }
+    
+    # try to connect to the DB
+    try:
+        connection = psycopg2.connect(
+            user=credential.username,
+            password=credential.password,
+            host=credential.host,
+            database=credential.database,
+            connect_timeout=10
+        )
+    except OperationalError as e:
+        print(f"The error '{e}' occurred")
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            },
+            'body': json.dumps({"error": "Database connection failed", "message": str(e)})
+        }
+
+    try:  
+        cursor = connection.cursor()
         
         query = sql.SQL("SELECT * FROM {}").format(sql.Identifier(table))
         cursor.execute(query)
