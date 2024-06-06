@@ -1,0 +1,2 @@
+backend/Terraform/.terraform/
+backend/Terraform/.terraform.lock.hcl
