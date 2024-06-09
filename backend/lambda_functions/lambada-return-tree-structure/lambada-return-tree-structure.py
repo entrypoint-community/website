@@ -12,8 +12,7 @@ def get_google_drive_service():
     region_name = os.environ['AWS_REGION']
 
     # Create a Secrets Manager client
-    session = boto3.session.Session()
-    client = session.client(
+    client = boto3.client(
         service_name='secretsmanager',
         region_name=region_name
     )
