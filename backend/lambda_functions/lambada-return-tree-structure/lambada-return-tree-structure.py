@@ -58,7 +58,8 @@ def list_drive_files(service, folder_id='root'):
 def lambda_handler(event, context):
     try:
         service = get_google_drive_service()
-        drive_tree = list_drive_files(service)
+        folder_id = '1ugHtUXt1WhRrddKYdw5udTlCVH7lwMu'
+        drive_tree = list_drive_files(service, folder_id)
         return {
             'statusCode': 200,
             'body': json.dumps(drive_tree)
