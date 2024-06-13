@@ -9,14 +9,14 @@ resource "aws_api_gateway_resource" "lambda_resource" {
   for_each    = var.lambda_paths
   rest_api_id = aws_api_gateway_rest_api.management_api.id
   parent_id   = aws_api_gateway_rest_api.management_api.root_resource_id
-  path_part   = each.value
+  path_part   = each.value.path
 }
 
 resource "aws_api_gateway_method" "lambda_method" {
   for_each      = aws_api_gateway_resource.lambda_resource
   rest_api_id   = aws_api_gateway_rest_api.management_api.id
   resource_id   = each.value.id
-  http_method   = var.http_method
+  http_method   = each.value.http_method
   authorization = "NONE"
 }
 
@@ -25,7 +25,7 @@ resource "aws_api_gateway_integration" "lambda_integration" {
   rest_api_id             = aws_api_gateway_rest_api.management_api.id
   resource_id             = each.value.id
   http_method             = aws_api_gateway_method.lambda_method[each.key].http_method
-  integration_http_method = var.http_method
+  integration_http_method = each.value.http_method
   type                    = "AWS"
   uri                     = aws_lambda_function[each.key].invoke_arn
 }
@@ -35,7 +35,7 @@ resource "aws_api_gateway_method_response" "lambda_method_response" {
   rest_api_id   = aws_api_gateway_rest_api.management_api.id
   resource_id   = each.value.id
   http_method   = aws_api_gateway_method.lambda_method[each.key].http_method
-  status_code   = var.method_response_status_code
+  status_code   = each.value.method_response_status_code
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = true,
     "method.response.header.Access-Control-Allow-Methods" = true,
