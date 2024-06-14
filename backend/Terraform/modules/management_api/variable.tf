@@ -18,40 +18,6 @@ variable "lambda_paths" {
     method_response_status_code = string
   }))
   default = {
-    announcement = {
-      path = "announcement_lambda"
-      http_method = "POST"
-      method_response_status_code = "200"
-    }
-    blog_post = {
-      path = "blog_post_lambda"
-      http_method = "POST"
-      method_response_status_code = "200"
-    }
-    drive_contects = {
-      path = "drive_contects"
-      http_method = "POST"
-      method_response_status_code = "200"
-    }
-    community_statistics = {
-      path = "community_statistics"
-      http_method = "POST"
-      method_response_status_code = "200"
-    }
-    community_members = {
-      path = "community_members"
-      http_method = "POST"
-      method_response_status_code = "200"
-    }
-    registration_form = {
-      path = "registration_form"
-      http_method = "POST"
-      method_response_status_code = "200"
-    }
-    community_blog_posts = {
-      path = "community_blog_posts"
-      http_method = "POST"
-      method_response_status_code = "200"
-    }
+ 
   }
 }

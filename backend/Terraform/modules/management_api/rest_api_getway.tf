@@ -15,7 +15,7 @@ resource "aws_api_gateway_resource" "lambda_resource" {
 resource "aws_api_gateway_method" "lambda_method" {
   for_each      = aws_api_gateway_resource.lambda_resource
   rest_api_id   = aws_api_gateway_rest_api.management_api.id
-  resource_id   = each.value.id
+  resource_id   = aws_api_gateway_resource.lambda_resource[each.key].id
   http_method   = each.value.http_method
   authorization = "NONE"
 }
@@ -23,7 +23,7 @@ resource "aws_api_gateway_method" "lambda_method" {
 resource "aws_api_gateway_integration" "lambda_integration" {
   for_each                = aws_api_gateway_resource.lambda_resource
   rest_api_id             = aws_api_gateway_rest_api.management_api.id
-  resource_id             = each.value.id
+  resource_id             = aws_api_gateway_resource.lambda_resource[each.key].id
   http_method             = aws_api_gateway_method.lambda_method[each.key].http_method
   integration_http_method = each.value.http_method
   type                    = "AWS"
@@ -33,7 +33,7 @@ resource "aws_api_gateway_integration" "lambda_integration" {
 resource "aws_api_gateway_method_response" "lambda_method_response" {
   for_each      = aws_api_gateway_resource.lambda_resource
   rest_api_id   = aws_api_gateway_rest_api.management_api.id
-  resource_id   = each.value.id
+  resource_id   = aws_api_gateway_resource.lambda_resource[each.key].id
   http_method   = aws_api_gateway_method.lambda_method[each.key].http_method
   status_code   = each.value.method_response_status_code
   response_parameters = {
@@ -46,7 +46,7 @@ resource "aws_api_gateway_method_response" "lambda_method_response" {
 resource "aws_api_gateway_integration_response" "lambda_integration_response" {
   for_each      = aws_api_gateway_resource.lambda_resource
   rest_api_id   = aws_api_gateway_rest_api.management_api.id
-  resource_id   = each.value.id
+  resource_id   = aws_api_gateway_resource.lambda_resource[each.key].id
   http_method   = aws_api_gateway_method.lambda_method[each.key].http_method
   status_code   = aws_api_gateway_method_response.lambda_method_response[each.key].status_code
   response_parameters = {
