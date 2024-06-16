@@ -1,5 +1,6 @@
 import json
 import os
+from pickle import TRUE
 import boto3
 from botocore.exceptions import ClientError
 import psycopg2
@@ -70,16 +71,10 @@ def check_table(table):
         cursor.execute(check_table, (table,))
         table_exists = cursor.fetchone()
 
-        if not table_exists:
-            print(f"There is no table called {table}")
-            return {
-                'statusCode': 400,
-                'headers': {
-                    'Access-Control-Allow-Origin': '*',
-                    'Content-Type': 'application/json'
-                },
-                'body': json.dumps({"message": f"There is no table called {table}"})
-            }
+        if table_exists:
+            return True
+        else:
+            return None
     except OperationalError as e:
         print(f"The error '{e}' occurred")
         return {
@@ -127,6 +122,11 @@ def db_connect ():
 
 def retrieve_data(table_name):
     connection = db_connect
+    if not connection:
+        return connection
+    table_exist = check_table(table=table_name)
+    if not table_exist:
+        return table_exist
     try:  
         cursor = connection.cursor()
         
@@ -167,3 +167,4 @@ def retrieve_data(table_name):
             },
             'body': json.dumps({"error": str(error)})
         }
+    
