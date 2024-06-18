@@ -1,13 +1,13 @@
 import json
 import os
+from pickle import TRUE
 import boto3
 from botocore.exceptions import ClientError
 import psycopg2
-from psycopg2 import OperationalError
+from psycopg2 import OperationalError, sql
 from credentials import db_creds
 
-# get the credentials for Secret Manager
-def getCredentials() -> db_creds:
+def get_postgres_credentials(secret_Name) -> db_creds:
 
     client = boto3.client(
       service_name='secretsmanager',
@@ -16,7 +16,7 @@ def getCredentials() -> db_creds:
     
     try:
         secret_value = client.get_secret_value(
-            SecretId='secretName' # replace with the real secret name 
+            SecretId=secret_Name # replace with the real secret name 
         )
         secret = json.loads(secret_value['SecretString'])
     except ClientError as e:
@@ -31,10 +31,9 @@ def getCredentials() -> db_creds:
     )
 
 
-def lambda_handler(event, context):
-  
+def check_table(table):
     try:
-        credential = getCredentials()
+        credential = get_postgres_credentials(secret_Name=os.environ["secret_name"]) # replace the secret with the actual secret for the DB creds
     except json.JSONDecodeError as e:
             return {
                 'statusCode': 400,
@@ -68,25 +67,73 @@ def lambda_handler(event, context):
     try:  
         cursor = connection.cursor()
         
-        check_table = "SELECT 1 FROM pg_tables WHERE tablename = 'users'"
-        cursor.execute(check_table)
+        check_table = sql.SQL("SELECT 1 FROM pg_tables WHERE tablename = %s")
+        cursor.execute(check_table, (table,))
         table_exists = cursor.fetchone()
 
-        if not table_exists:
-            print("There is no table called 'users'")
+        if table_exists:
+            return True
+        else:
+            return None
+    except OperationalError as e:
+        print(f"The error '{e}' occurred")
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            },
+            'body': json.dumps({"error": str(e)})
+        }
+    
+def db_connect ():
+    try:
+        credential = get_postgres_credentials(secret_Name=os.environ["secret_name"]) # replace the secret with the actual secret for the DB creds
+    except json.JSONDecodeError as e:
             return {
                 'statusCode': 400,
                 'headers': {
                     'Access-Control-Allow-Origin': '*',
                     'Content-Type': 'application/json'
                 },
-                'body': json.dumps({"message": "There is no table called 'users'"})
+                'body': json.dumps({"error": "Invalid JSON syntax", "message": str(e)})
             }
+    
+    # try to connect to the DB
+    try:
+        connection = psycopg2.connect(
+            user=credential.username,
+            password=credential.password,
+            host=credential.host,
+            database=credential.database,
+            connect_timeout=10
+        )
+        return connection
+    except OperationalError as e:
+        print(f"The error '{e}' occurred")
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json'
+            },
+            'body': json.dumps({"error": "Database connection failed", "message": str(e)})
+        }
+
+def retrieve_data(table_name):
+    connection = db_connect
+    if not connection:
+        return connection
+    table_exist = check_table(table=table_name)
+    if not table_exist:
+        return table_exist
+    try:  
+        cursor = connection.cursor()
         
-        query = "SELECT * FROM users"
+        query = sql.SQL(f"SELECT * FROM ${table_name}")
         cursor.execute(query)
         
-        user_data = cursor.fetchall()
+        table_data = cursor.fetchall()
         
         cursor.close()
         connection.close()
@@ -97,7 +144,7 @@ def lambda_handler(event, context):
                 'Access-Control-Allow-Origin': '*',
                 'Content-Type': 'application/json'
             },
-            'body': json.dumps(user_data)
+            'body': json.dumps(table_data)
         }
 
     except OperationalError as e:
@@ -120,3 +167,4 @@ def lambda_handler(event, context):
             },
             'body': json.dumps({"error": str(error)})
         }
+    
