@@ -1,0 +1,45 @@
+name: static-website-ci-cd
+
+on:
+    push:
+        branches:
+            - main
+        paths:
+            - 'backend/**'
+jobs:
+
+    sync-to-s3:
+        runs-on: ubuntu-latest
+
+        steps:
+        - name: Checkout
+          uses: actions/checkout@v4.1.5
+        
+        - name: Configure AWS Credentials
+          uses: aws-actions/configure-aws-credentials@v2
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: us-east-1  # needs to change to the correct region
+
+        - name: Get list of changed files # insert all the changed files in to file 
+          id: changed-files
+          run: |
+            git fetch origin main
+            CHANGED_FILES=$(git diff --name-only HEAD^ HEAD)
+            echo "changed_files=$CHANGED_FILES" >> $GITHUB_ENV
+        
+        - name: Sync to S3
+          run: aws s3 sync . s3://your-bucket-name # needs to change to the bucket name
+
+        - name: Prepare CloudFront invalidation paths # create list of all the files changed in the push and create prefixes
+          id: prepare-paths
+          run: |
+            CHANGED_FILES=${{ env.changed_files }}
+            INVALIDATION_PATHS=$(echo $CHANGED_FILES | tr ' ' '\n' | sed 's/^/\//') 
+            echo "invalidation_paths=$INVALIDATION_PATHS" >> $GITHUB_ENV
+
+        - name: invalidate-cache
+          run: aws cloudfront create-invalidation --distribution-id distribution_ID --paths ${{ env.invalidation_paths }} #needs to change the ditribution_id
+
+    
